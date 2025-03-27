@@ -1,0 +1,59 @@
+﻿@model VariantRequestAddModel
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Yeni Varyant Oluştur</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Variants" asp-action="Add" method="post">
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label>Üst Varyant Adı</label>
+                            <select asp-for="TopVariantName" class="form-control" id="TopVariantName">
+                                <option selected="selected">Üst Varyant Seçiniz</option>
+                                @foreach (VariantResponseViewModel variant in ViewBag.Variants)
+                                {
+                                    <option data-id="@variant.Id" value="@variant.VariantName">@variant.VariantName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <input asp-for="TopVariantId" type="hidden" id="SelectedVariantId" value="" />
+
+                        <div class="form-group">
+                            <label>Yeni Varyant Adı</label>
+                            <input asp-for="VariantName" type="text" class="form-control">
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('TopVariantName').addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const selectedId = selectedOption.getAttribute('data-id');
+        document.getElementById('SelectedVariantId').value = selectedId;
+    });
+</script>
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>

@@ -1,0 +1,121 @@
+﻿@model ProductResponseViewModel
+
+@{int[] existCategoryIds = ViewBag.ExistCategoryIds as int[] ?? [];}
+
+<link rel="stylesheet" href="~/css/multi-select-tag.css">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Ürün Güncelle</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Products" asp-action="Update" asp-route-PageIndex="@ViewBag.PageIndex" method="post">
+                    <div class="card-body">
+
+                        @if (ViewBag.IsLockedProductType)
+                        {
+                            <div class="form-group">
+                                <label>Ürün Tipi</label>
+                                <input asp-for="ProductType" type="text" class="form-control" readonly>
+                            </div>
+                        } 
+                        else
+                        {
+                            <div class="form-group">
+                                <label>Ürün Tipi</label>
+                                <select asp-for="ProductType" class="form-control">
+                                    @foreach (string productType in ViewBag.ProductTypes)
+                                    {
+                                        if(productType == Model.ProductType)
+                                        {
+                                            <option value="@productType" selected>@productType</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@productType">@productType</option>
+                                        }  
+                                    }
+                                </select>
+                            </div>
+                        }
+
+            
+
+                        <div class="form-group">
+                            <label>Ürün Kategorileri</label>
+                            <select name="categoryIds" class="form-control" id="categories" multiple>
+                                @foreach (CategorySelectBoxModel category in ViewBag.AllCategories)
+                                {
+                                    if(existCategoryIds.Contains(category.Id))
+                                    {
+                                        <option value="@category.Id" selected>@category.FullCategoryName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@category.Id">@category.FullCategoryName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Kodu</label>
+                            <input asp-for="ProductCode" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Adı</label>
+                            <input asp-for="ProductName" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Açıklaması</label>
+                            <input asp-for="ProductDescription" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Görsel Linki</label>
+                            <input asp-for="ProductImageUrl" type="url" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Fiyatı</label>
+                            <input asp-for="ProductPrice" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-check">
+                            <input asp-for="IsAddToCart" type="checkbox" class="form-check-input" id="exampleCheck1" checked="@Model.IsAddToCart">
+                            <label class="form-check-label" for="exampleCheck1">Oluşturduğunuz Yeni Ürün Karttan Direkt Sepete Eklensin Mi?</label>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Güncelle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/multi-select-tag.js"></script>
+
+<script>
+    new MultiSelectTag('categories')
+</script>
+
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>

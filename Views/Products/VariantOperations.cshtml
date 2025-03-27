@@ -1,0 +1,129 @@
+﻿@{
+    int[] existVariantIds = ViewBag.ExistVariantIds as int[] ?? [];
+}
+
+<link rel="stylesheet" href="~/css/multi-select-tag.css">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Varyant İşlemleri</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Products" asp-action="VariantOperations" 
+                asp-route-ProductId="@ViewBag.ProductId" asp-route-PageIndex="@ViewBag.PageIndex" method="post">
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label>Ürün Id</label>
+                            <input value="@ViewBag.ProductId" type="text" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Ad</label>
+                            <input value="@ViewBag.ProductName" type="text" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Varyantlar</label>
+                            <select name="variantIds" class="form-control" id="variants" multiple>
+                                @foreach (VariantResponseViewModel variant in ViewBag.AllVariants)
+                                {
+                                    if (existVariantIds.Contains(variant.Id))
+                                    {
+                                        <option value="@variant.Id" selected>@(variant.TopVariantName + " > " + variant.VariantName)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@variant.Id">@(variant.TopVariantName + " > " + variant.VariantName)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-secondary" onclick="generateCombinations('@ViewBag.ProductName')">Varyantları Oluştur ve Göster</button>
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Oluşacak Varyantlar</h3>
+                </div>
+                <div id="result" class="form-group">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/multi-select-tag.js"></script>
+
+<script>
+    new MultiSelectTag('variants')
+</script>
+
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>
+<script>
+    function generateCombinations(prefix) {
+        let select = document.getElementById("variants");
+        let selectedOptions = Array.from(select.selectedOptions).map(option => option.textContent.trim());
+
+        if (selectedOptions.length === 0) {
+            alert("Lütfen en az bir varyant seçin!");
+            return;
+        }
+
+        let combinations = crossJoin(selectedOptions);
+
+        // Ön eki her kombinasyonun başına ekle
+        let formattedCombinations = combinations.map(combo => `${prefix} | ${combo.join(" | ")}`);
+
+        // Sonuçları ekrana yazdır
+        document.getElementById("result").innerHTML = `<pre>${formattedCombinations.join("\n")}</pre>`;
+    }
+
+    function crossJoin(inputStrings) {
+        let groups = {};
+
+        inputStrings.forEach(str => {
+            let [key, value] = str.split(">").map(s => s.trim());
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(value);
+        });
+
+        let groupedArray = Object.values(groups);
+
+        function cartesianProduct(arr) {
+            return arr.reduce((a, b) => a.flatMap(d => b.map(e => d.concat(e))), [[]]);
+        }
+
+        return cartesianProduct(groupedArray);
+    }
+</script>

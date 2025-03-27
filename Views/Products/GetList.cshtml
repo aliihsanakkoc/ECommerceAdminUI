@@ -1,0 +1,115 @@
+﻿@model PaginationResponseViewModel<ProductResponseViewModel>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Ürün listesi</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="example2" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Ürün Adı</th>
+                                <th>Ürün Tipi</th>
+                                <th>Sepet Durumu</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ProductResponseViewModel product in Model.Items)
+                            {
+                                <tr>
+                                    <td>@product.Id</td>
+                                    <td>@product.ProductName</td>
+                                    <td>@product.ProductType</td>
+                                    <td>
+                                        <a id="toggleButton-@product.Id" onclick="toggleStatus('@product.Id')"
+                                           asp-controller="Products" asp-action="ChangeStatus"
+                                           asp-route-Id="@product.Id"
+                                           asp-route-PageIndex="@Model.Index"
+                                           class="@(product.IsAddToCart ? "btn btn-success" : "btn btn-danger")">
+                                            @(product.IsAddToCart ? "Aktif" : "Pasif")
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Products" asp-action="Update"
+                                           asp-route-Id="@product.Id"
+                                           asp-route-PageIndex="@Model.Index"
+                                           class="btn btn-primary"> <i class="fas fa fa-pen"></i></a>
+
+                                        <a asp-controller="Products" asp-action="ProductTypeOperations"
+                                           asp-route-Id="@product.Id"
+                                           asp-route-ProductType="@product.ProductType"
+                                           asp-route-PageIndex="@Model.Index"
+                                           class="btn btn-success"> <i class="fas fa fa-pencil-ruler"></i></a>
+
+                                        <a asp-controller="Products" asp-action="VariantOperations"
+                                           asp-route-Id="@product.Id"
+                                           asp-route-ProductName="@product.ProductName"
+                                           asp-route-PageIndex="@Model.Index"
+                                           class="btn btn-secondary"> <i class="fas fa fa-project-diagram"></i></a>
+
+                                        <a asp-controller="Products" asp-action="Delete"
+                                           asp-route-Id="@product.Id"
+                                           asp-route-PageIndex="@Model.Index"
+                                           class="btn btn-danger"> <i class="fas fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div class="card-footer clearfix">
+                    <ul class="pagination pagination-xl m-2 justify-content-center">
+                        <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                            <a asp-controller="Products" asp-action="GetList" asp-route-PageIndex="@(Model.Index - 1)"
+                               class="page-link">&laquo;</a>
+                        </li>
+
+                        @for (int i = 0; i < Model.Pages; i++)
+                        {
+                            <li class="page-item @(Model.Pages<5 || (i<Model.Index+3 && i>Model.Index-3) ? "" : "d-none")">
+                                <a asp-controller="Products" asp-action="GetList" asp-route-PageIndex="@i"
+                                   class="page-link">@(i + 1)</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                            <a asp-controller="Products" asp-action="GetList" asp-route-PageIndex="@(Model.Index + 1)"
+                               class="page-link">&raquo;</a>
+                        </li>
+                    </ul>
+                </div>
+                <p>Toplam <b>@Model.Count</b> kayıt <b>@Model.Pages</b> sayfa içerisinden <b>@(Model.Index + 1)</b>.sayfayı görüntülemektesiniz.</p>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>
+<script>
+    function toggleStatus(productId) {
+        var button = document.getElementById("toggleButton-" + productId);
+
+        if (button.innerText === "Pasif") {
+            button.innerText = "Aktif";
+            button.className = "btn btn-success";
+        } else {
+            button.innerText = "Pasif";
+            button.className = "btn btn-danger";
+        }
+    }
+</script>

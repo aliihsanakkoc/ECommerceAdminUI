@@ -1,0 +1,77 @@
+﻿@model BookResponseViewModel
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Kitap Güncelle</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Books" asp-action="Update" asp-route-PageIndex="@ViewBag.PageIndex" method="post">
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label>Kitap Id</label>
+                            <input asp-for="Id" type="number" value="@Model.Id" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kitap Başlığı</label>
+                            <input asp-for="Title" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Yazar</label>
+                            <input asp-for="Author" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Yayıncı</label>
+                            <input asp-for="Publisher" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Yayın Tarihi</label>
+                            <input asp-for="PublishedDate" type="datetime" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Baskı</label>
+                            <input asp-for="Edition" type="number" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>ISBN</label>
+                            <input asp-for="ISBN" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Id</label>
+                            <input asp-for="ProductId" type="number" value="@Model.ProductId" class="form-control" readonly>
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Güncelle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>

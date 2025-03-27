@@ -1,0 +1,67 @@
+﻿@model ClothingResponseViewModel
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Kıyafet Güncelle</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Clothings" asp-action="Update" asp-route-PageIndex="@ViewBag.PageIndex" method="post">
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label>Kıyafet Id</label>
+                            <input asp-for="Id" type="number" value="@Model.Id" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Yeni Kıyafet Üretim Yeri</label>
+                            <input asp-for="MadeIn" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Elyaf Kompozisyonu</label>
+                            <input asp-for="FiberComposition" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Yıkama Talimatı</label>
+                            <input asp-for="LaundryLabel" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Marka</label>
+                            <input asp-for="Brand" type="datetime" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Id</label>
+                            <input asp-for="ProductId" type="number" value="@Model.ProductId" class="form-control" readonly>
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Güncelle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>

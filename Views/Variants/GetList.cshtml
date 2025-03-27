@@ -1,0 +1,75 @@
+﻿@model PaginationResponseViewModel<VariantResponseViewModel>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Varyant listesi</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="example2" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Üst Varyant Adı</th>
+                                <th>Varyant Adı</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (VariantResponseViewModel variant in Model.Items)
+                            {
+                                <tr>
+                                    <td>@variant.Id</td>
+                                    <td>@variant.TopVariantName</td>
+                                    <td>@variant.VariantName</td>
+                                    <td>
+                                        <a asp-controller="Variants" asp-action="Delete"
+                                           asp-route-Id="@variant.Id"
+                                           asp-route-PageIndex="@Model.Index" asp-route-CallPage="GetList"
+                                           class="btn btn-danger"> Sil</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div class="card-footer clearfix">
+                    <ul class="pagination pagination-xl m-2 justify-content-center">
+                        <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                            <a asp-controller="Variants" asp-action="GetList" asp-route-PageIndex="@(Model.Index - 1)"
+                               class="page-link">&laquo;</a>
+                        </li>
+
+                        @for (int i = 0; i < Model.Pages; i++)
+                        {
+                            <li class="page-item @(Model.Pages<5 || (i<Model.Index+3 && i>Model.Index-3) ? "" : "d-none")">
+                                <a asp-controller="Variants" asp-action="GetList" asp-route-PageIndex="@i"
+                                   class="page-link">@(i + 1)</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                            <a asp-controller="Variants" asp-action="GetList" asp-route-PageIndex="@(Model.Index + 1)"
+                               class="page-link">&raquo;</a>
+                        </li>
+                    </ul>
+                </div>
+                <p>Toplam <b>@Model.Count</b> kayıt <b>@Model.Pages</b> sayfa içerisinden <b>@(Model.Index + 1)</b>.sayfayı görüntülemektesiniz.</p>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>

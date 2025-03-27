@@ -1,0 +1,64 @@
+﻿@model CategoryRequestAddModel
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Yeni Kategori Oluştur</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Categories" asp-action="Add" method="post">
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label>Üst Kategori Adı</label>
+                            <select asp-for="TopCategoryName" class="form-control" id="TopCategoryName">
+                                <option selected="selected">Üst Kategori Seçiniz</option>
+                                @foreach (CategorySelectBoxModel category in ViewBag.Categories)
+                                {
+                                    <option data-id="@category.Id" value="@category.FullCategoryName">@category.FullCategoryName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <input asp-for="TopCategoryId" type="hidden" id="SelectedCategoryId" value="" />
+
+                        <div class="form-group">
+                            <label>Yeni Kategori Adı</label>
+                            <input asp-for="SingleCategoryName" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-check">
+                            <input asp-for="IsProductCategorization" type="checkbox" class="form-check-input" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">Oluşturduğunuz Kategoriyi Ürün Kategorilendiriken Kullanacak Mısınız?</label>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('TopCategoryName').addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const selectedId = selectedOption.getAttribute('data-id');
+        document.getElementById('SelectedCategoryId').value = selectedId;
+    });
+</script>
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>

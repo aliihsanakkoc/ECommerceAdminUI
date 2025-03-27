@@ -1,0 +1,57 @@
+﻿@model FoodRequestAddModel
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Yeni Gıda Oluştur</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form asp-controller="Foods" asp-action="Add" asp-route-PageIndex="@ViewBag.PageIndex" method="post">
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label>Yeni Depolama Koşulları</label>
+                            <input asp-for="StorageCondition" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hazırlanma Tekniği</label>
+                            <input asp-for="PreparationTechnique" type="text" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Son Kullanma Tarihi</label>
+                            <input asp-for="ExpiryDate" type="datetime" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ürün Id</label>
+                            <input asp-for="ProductId" type="number" value="@ViewBag.ProductId" class="form-control" readonly>
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">Oluştur</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    window.onload = function () {
+        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
+        if (message) {
+            alert(message);
+        }
+    }
+</script>
