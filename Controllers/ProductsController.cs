@@ -168,8 +168,10 @@ public class ProductsController(IHttpClientFactory httpClientFactory) : MyBaseCo
         return View(product);
     }
     [HttpPost]
-    public async Task<IActionResult> Update(ProductResponseViewModel product, int[] categoryIds, int pageIndex)
+    public async Task<IActionResult> Update(ProductResponseViewModel product, string selectedCategoryIds, int pageIndex)
     {
+        int[] categoryIds = selectedCategoryIds.Split(',').Select(int.Parse).ToArray();
+
         HttpClient client = CreateClientAndFillAuthenticationHeaderValueWithAccessToken();
         HttpResponseMessage httpResponseMessage = await client.PutAsJsonAsync($"{ApiUri}{ControllerName}/", product);
 

@@ -58,6 +58,13 @@ public class MyBaseController : Controller
             string message = "";
             ExceptionViewModel? exceptionViewModel = 
                 JsonConvert.DeserializeObject<ExceptionViewModel>(await response.Content.ReadAsStringAsync());
+
+            if (exceptionViewModel == null)
+            {
+                TempData["ExceptionMessage"] = "An error occurred while processing your request.";
+                return true;
+            }
+                
             if (exceptionViewModel!.Errors != null)
                 foreach (Error error in exceptionViewModel.Errors)
                     message += error.Errors.GetValue(0)!.ToString();

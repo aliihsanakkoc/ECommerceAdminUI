@@ -1,5 +1,4 @@
-﻿
-function MultiSelectTag(el, customs = { shadow: false, rounded: true }) {
+﻿function MultiSelectTag(el, customs = { shadow: false, rounded: true }) {
     // Initialize variables
     var element = null,
         options = null,
@@ -13,6 +12,9 @@ function MultiSelectTag(el, customs = { shadow: false, rounded: true }) {
         button = null,
         drawer = null,
         ul = null;
+
+    // Ayırıcı karakteri customs'dan al, varsayılan olarak ':' kullan
+    var separator = customs.separator || ':';
 
     // Customize tag colors
     var tagColor = customs.tagColor || {};
@@ -269,14 +271,34 @@ function MultiSelectTag(el, customs = { shadow: false, rounded: true }) {
     }
 
     function setValues(fireEvent = true) {
-        // Update element final values
         selected_values = [];
+        let pivotData = {};
+        
         for (var i = 0; i < options.length; i++) {
             element.options[i].selected = options[i].selected;
             if (options[i].selected) {
-                selected_values.push({ label: options[i].label, value: options[i].value });
+                let value = options[i].value;
+                let label = options[i].label;
+                
+                // Özelleştirilmiş ayırıcıyı kullan
+                let parts = value.split(separator);
+                
+                if (parts.length > 1) {
+                    let key = parts[0].trim();
+                    let val = parts[1].trim();
+                    
+                    if (!pivotData[key]) {
+                        pivotData[key] = [];
+                    }
+                    pivotData[key].push(val);
+                }
+                
+                selected_values.push({ label: label, value: value });
             }
         }
+        
+        selected_values.pivotData = pivotData;
+        
         if (fireEvent && customs.hasOwnProperty('onChange')) {
             customs.onChange(selected_values);
         }

@@ -2,7 +2,7 @@
 
 @{int[] existCategoryIds = ViewBag.ExistCategoryIds as int[] ?? [];}
 
-<link rel="stylesheet" href="~/css/multi-select-tag.css">
+<link rel="stylesheet" href="~/css/pivot-table.css">
 
 <div class="container-fluid">
     <div class="row">
@@ -44,25 +44,12 @@
                                 </select>
                             </div>
                         }
+          
+                        <div class="form-group" id="pivot">
 
-            
-
-                        <div class="form-group">
-                            <label>Ürün Kategorileri</label>
-                            <select name="categoryIds" class="form-control" id="categories" multiple>
-                                @foreach (CategorySelectBoxModel category in ViewBag.AllCategories)
-                                {
-                                    if(existCategoryIds.Contains(category.Id))
-                                    {
-                                        <option value="@category.Id" selected>@category.FullCategoryName</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@category.Id">@category.FullCategoryName</option>
-                                    }
-                                }
-                            </select>
                         </div>
+
+                        <input type="hidden" id="selectedCategories" name="selectedCategoryIds">
 
                         <div class="form-group">
                             <label>Ürün Kodu</label>
@@ -105,17 +92,87 @@
     </div>
 </div>
 
-<script src="~/js/multi-select-tag.js"></script>
-
 <script>
-    new MultiSelectTag('categories')
+    function parseAndPivot(dataArray, existCategoryIds) {
+        const result = {};
+        const rowIdMap = {}; // Map for storing unique row values with IDs
+        let rowIdCounter = 1;
+
+        dataArray.forEach(entry => {
+            if (typeof entry !== 'object' || !entry.id || !entry.fullCategoryName) {
+                console.error('Geçersiz veri formatı:', entry);
+                return;
+            }
+
+            const id = entry.id;
+            const parts = entry.fullCategoryName.split(' > ');
+            const schoolName = parts[0];
+            const restPath = parts.slice(1).join(' > ');
+
+            if (!result[schoolName]) {
+                result[schoolName] = new Map();
+            }
+            result[schoolName].set(restPath, id);
+
+            if (!rowIdMap[restPath]) {
+                rowIdMap[restPath] = restPath;
+            }
+        });
+
+        // Convert Maps to Objects for easier usage
+        const pivotTable = {};
+        Object.keys(result).forEach(key => {
+            pivotTable[key] = Object.fromEntries(result[key]);
+        });
+
+        // Get all unique row values
+        const uniqueRows = Object.keys(rowIdMap);
+
+        // Create HTML Table
+        let html = '<table class="pivot-table"><tr><th>Category MultiSelectBox in PivotTable Form</th>';
+        Object.keys(pivotTable).forEach(school => {
+            html += `<th>${school}</th>`;
+        });
+        html += '</tr>';
+
+        uniqueRows.forEach(row => {
+            html += `<tr><td>${row}</td>`;
+            Object.keys(pivotTable).forEach(school => {
+                const fullCategory = row;
+                const categoryId = pivotTable[school]?.[fullCategory];
+                const checked = categoryId && existCategoryIds.includes(categoryId) ? 'checked' : '';
+                const disabled = categoryId ? '' : 'disabled';
+                const value = categoryId ? categoryId : '';
+
+                html += `<td><input type='checkbox' name='SelectedItems' value='${value}' ${checked} ${disabled}></td>`;
+            });
+            html += '</tr>';
+        });
+
+        html += '</table>';
+
+        document.getElementById('pivot').innerHTML = html;
+    }
+
+    // MVC ViewBag verisini al
+    const data = @Html.Raw(Json.Serialize(ViewBag.AllCategories));
+    const existCategoryIds = @Html.Raw(Json.Serialize(ViewBag.ExistCategoryIds));
+    parseAndPivot(data, existCategoryIds);
+
 </script>
 
 <script>
-    window.onload = function () {
-        var message = @Html.Raw(JsonConvert.SerializeObject(TempData["ExceptionMessage"]));
-        if (message) {
-            alert(message);
-        }
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("pivot").addEventListener("change", function () {
+            let selectedValues = Array.from(document.querySelectorAll("#pivot input[type='checkbox']:checked"))
+                .map(checkbox => checkbox.value)
+                .filter(value => value); // Boş değerleri filtrele
+
+            console.log("Seçili ID'ler:", selectedValues); // Konsolda kontrol etmek için
+
+            document.getElementById("selectedCategories").value = selectedValues.join(",");
+        });
+    });
+
+
 </script>
