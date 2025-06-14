@@ -119,7 +119,7 @@ public class ProductsController(IHttpClientFactory httpClientFactory) : MyBaseCo
 
         HttpClient client = CreateClientAndFillAuthenticationHeaderValueWithAccessToken();
         HttpResponseMessage allCategoriesMessage = await client.GetAsync($"{ApiUri}Categories/" +
-            $"OData?$select=id,fullCategoryName&$filter=isProductCategorization eq true");
+            $"OData?$select=id,fullCategoryName&$filter=isProductCategorization eq true&$orderby=fullCategoryName");
 
         if (await HandleHttpResponseMessage(allCategoriesMessage))
             return RedirectToAction("GetList", ControllerName, new {PageIndex = pageIndex});
