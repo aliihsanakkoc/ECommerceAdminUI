@@ -170,8 +170,6 @@ public class ProductsController(IHttpClientFactory httpClientFactory) : MyBaseCo
     [HttpPost]
     public async Task<IActionResult> Update(ProductResponseViewModel product, string selectedCategoryIds, int pageIndex)
     {
-        int[] categoryIds = selectedCategoryIds.Split(',').Select(int.Parse).ToArray();
-
         HttpClient client = CreateClientAndFillAuthenticationHeaderValueWithAccessToken();
         HttpResponseMessage httpResponseMessage = await client.PutAsJsonAsync($"{ApiUri}{ControllerName}/", product);
 
@@ -187,40 +185,45 @@ public class ProductsController(IHttpClientFactory httpClientFactory) : MyBaseCo
         List<CategoryProductViewModel> existCategoryProducts = JsonConvert.DeserializeObject<
             List<CategoryProductViewModel>>(await existCategoryProductsMessage.Content.ReadAsStringAsync())!;
 
-        int[] existCategoryIds = existCategoryProducts.Select(x => x.CategoryId).ToArray();
-
-        int[] addedCategoryIds = categoryIds.Except(existCategoryIds).ToArray();
-
-        if (addedCategoryIds.Length > 0)
+       if(selectedCategoryIds is not null)
         {
-            AddRangeCategoryProductsModel addRangeCategoryProductsModel = new()
+            int[] categoryIds = selectedCategoryIds.Split(',').Select(int.Parse).ToArray();
+
+            int[] existCategoryIds = existCategoryProducts.Select(x => x.CategoryId).ToArray();
+
+            int[] addedCategoryIds = categoryIds.Except(existCategoryIds).ToArray();
+
+            if (addedCategoryIds.Length > 0)
             {
-                ProductId = product.Id,
-                CategoryIds = addedCategoryIds
-            };
+                AddRangeCategoryProductsModel addRangeCategoryProductsModel = new()
+                {
+                    ProductId = product.Id,
+                    CategoryIds = addedCategoryIds
+                };
 
-            HttpResponseMessage addRangeCategoryProductsMessage = await client.PostAsJsonAsync(
-                $"{ApiUri}CategoryProducts/AddRange", addRangeCategoryProductsModel);
+                HttpResponseMessage addRangeCategoryProductsMessage = await client.PostAsJsonAsync(
+                    $"{ApiUri}CategoryProducts/AddRange", addRangeCategoryProductsModel);
 
-            if (await HandleHttpResponseMessage(addRangeCategoryProductsMessage))
-                return RedirectToAction("GetList", ControllerName, new { PageIndex = pageIndex });
-        }
+                if (await HandleHttpResponseMessage(addRangeCategoryProductsMessage))
+                    return RedirectToAction("GetList", ControllerName, new { PageIndex = pageIndex });
+            }
 
-        int[] deletedCategoryIds = existCategoryIds.Except(categoryIds).ToArray();
+            int[] deletedCategoryIds = existCategoryIds.Except(categoryIds).ToArray();
 
-        if (deletedCategoryIds.Length > 0)
-        {
-            int[] deletedCategoryProductIds = existCategoryProducts.Where(x => deletedCategoryIds
-                .Contains(x.CategoryId)).Select(x => x.Id).ToArray();
+            if (deletedCategoryIds.Length > 0)
+            {
+                int[] deletedCategoryProductIds = existCategoryProducts.Where(x => deletedCategoryIds
+                    .Contains(x.CategoryId)).Select(x => x.Id).ToArray();
 
-            DeleteRangeCategoryProductModel deleteRangeCategoryProductModel = new() 
+                DeleteRangeCategoryProductModel deleteRangeCategoryProductModel = new()
                 { Ids = deletedCategoryProductIds };
 
-            HttpResponseMessage deleteRangeCategoryProductsMessage = await client.PostAsJsonAsync(
-                $"{ApiUri}CategoryProducts/DeleteRange", deleteRangeCategoryProductModel);
+                HttpResponseMessage deleteRangeCategoryProductsMessage = await client.PostAsJsonAsync(
+                    $"{ApiUri}CategoryProducts/DeleteRange", deleteRangeCategoryProductModel);
 
-            if (await HandleHttpResponseMessage(deleteRangeCategoryProductsMessage))
-                return RedirectToAction("GetList", ControllerName, new { PageIndex = pageIndex });
+                if (await HandleHttpResponseMessage(deleteRangeCategoryProductsMessage))
+                    return RedirectToAction("GetList", ControllerName, new { PageIndex = pageIndex });
+            }
         }
 
         return RedirectToAction("GetList", ControllerName, new { PageIndex = pageIndex });
