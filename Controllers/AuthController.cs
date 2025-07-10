@@ -26,7 +26,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : MyBaseContro
             return RedirectToAction(ActionName, ControllerName);
 
         string responseJsonData = await httpResponseMessage.Content.ReadAsStringAsync();
-        AuthLoginResponseModel authLoginResponseModel = JsonConvert.DeserializeObject<AuthLoginResponseModel>(responseJsonData);
+        AuthLoginResponseModel? authLoginResponseModel = JsonConvert.DeserializeObject<AuthLoginResponseModel>(responseJsonData);
         HttpContext.Session.SetString("accessToken", JsonConvert.SerializeObject(authLoginResponseModel.accessToken));
 
         RefreshToken refreshToken = httpResponseMessage.GetRefreshTokenFromCookies();
@@ -52,7 +52,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : MyBaseContro
             return RedirectToAction(ActionName, ControllerName);
 
         string responseJsonData = await httpResponseMessage.Content.ReadAsStringAsync();
-        AccessToken accessToken = JsonConvert.DeserializeObject<AccessToken>(responseJsonData);
+        AccessToken? accessToken = JsonConvert.DeserializeObject<AccessToken>(responseJsonData);
         HttpContext.Session.SetString("accessToken", JsonConvert.SerializeObject(accessToken));
 
         RefreshToken refreshToken = httpResponseMessage.GetRefreshTokenFromCookies();
@@ -70,7 +70,7 @@ public class AuthController(IHttpClientFactory httpClientFactory) : MyBaseContro
         HttpResponseMessage httpResponseMessage = await httpClient.GetAsync($"{ApiUri}{ControllerName}/{ActionName}");
 
         string jsonResponseData = await httpResponseMessage.Content.ReadAsStringAsync();
-        AccessToken newAccessToken = JsonConvert.DeserializeObject<AccessToken>(jsonResponseData);
+        AccessToken? newAccessToken = JsonConvert.DeserializeObject<AccessToken>(jsonResponseData);
         HttpContext.Session.SetString("accessToken", JsonConvert.SerializeObject(newAccessToken));
 
         RefreshToken newRefreshToken = httpResponseMessage.GetRefreshTokenFromCookies();
